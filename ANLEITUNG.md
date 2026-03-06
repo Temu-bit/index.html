@@ -13,10 +13,11 @@ Es gibt jetzt einen viel einfacheren Weg, deine Produkte zu verwalten!
 - Gib einfach den Namen, Preis, Kategorie und den Link ein.
 - Klicke auf "Produkt hinzufügen". Es erscheint sofort in deiner Boutique!
 
-## 3. Dauerhaft speichern
-- Sobald du im Admin-Bereich ein Produkt hinzugefügt hast, scrolle nach unten zum Bereich "Permanentes Speichern".
-- Klicke auf "Code kopieren".
-- Öffne die Datei `products.js` in deinem Texteditor, lösche den alten Inhalt und füge den kopierten Code ein (Strg+V).
-- Speichere die Datei. Damit sind deine Produkte sicher, auch wenn du den Browser wechselst.
+## 4. Änderungen auf Discord sichtbar machen (GitHub)
+Da dein Shop auf GitHub läuft, musst du Änderungen an den Dateien dort "hochladen":
 
-Viel Spaß beim Verwalten deiner Boutique!
+1. **GitHub Desktop öffnen**: Du solltest dort links die geänderten Dateien (z.B. `main.js`) sehen.
+2. **Commit**: Gib unten links eine kurze Beschreibung ein (z.B. "Cloud Sync Update") und klicke auf den blauen Button **"Commit to main"**.
+3. **Push**: Klicke oben auf den Button **"Push origin"**. 
+
+Erst wenn das erledigt ist, können deine Freunde auf Discord die Änderungen sehen!
