@@ -4,174 +4,331 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Santa Blanca | Terminal</title>
+    <title>SANTA BLANCA | ADMIN TERMINAL v2.0</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&family=Ultra&display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@400;600&family=Ultra&display=swap"
         rel="stylesheet">
     <style>
+        :root {
+            --term-green: #00ff41;
+            --term-green-glow: #00ff4188;
+            --term-bg: #050505;
+            --term-border: #00ff4144;
+            --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+        }
+
+        body {
+            background-color: var(--term-bg);
+            background-image: radial-gradient(circle at center, #111 0%, #050505 100%);
+            color: var(--term-green);
+            font-family: var(--font-mono);
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* Scanline Effect */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 10000;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        /* Flicker Effect */
+        @keyframes flicker {
+            0% {
+                opacity: 0.97;
+            }
+
+            5% {
+                opacity: 0.95;
+            }
+
+            10% {
+                opacity: 0.9;
+            }
+
+            15% {
+                opacity: 0.93;
+            }
+
+            20% {
+                opacity: 0.98;
+            }
+
+            25% {
+                opacity: 0.95;
+            }
+
+            30% {
+                opacity: 1.0;
+            }
+
+            100% {
+                opacity: 0.98;
+            }
+        }
+
+        .crt-overlay {
+            animation: flicker 0.15s infinite;
+        }
+
         .admin-main {
-            padding: 8rem 1.5rem 3rem;
-            max-width: 800px;
+            padding: 6rem 2rem 4rem;
+            max-width: 900px;
             margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            background: rgba(0, 0, 0, 0.8);
+            border-bottom: 2px solid var(--term-green);
+            padding: 1rem 2rem;
+            box-shadow: 0 0 15px var(--term-green-glow);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-text {
+            color: var(--term-green);
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-shadow: 0 0 10px var(--term-green);
+        }
+
+        .terminal-card {
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid var(--term-border);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.1);
+            position: relative;
+        }
+
+        .terminal-card::before {
+            content: ">_";
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: var(--term-bg);
+            padding: 0 10px;
+            font-weight: bold;
+        }
+
+        .terminal-card h3 {
+            color: var(--term-green);
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--term-border);
+            padding-bottom: 0.5rem;
+            font-size: 1rem;
+            text-transform: uppercase;
         }
 
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.2rem;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--color-accent);
+            margin-bottom: 0.4rem;
+            font-size: 0.85rem;
+            opacity: 0.8;
         }
 
         .form-group input,
         .form-group select {
             width: 100%;
             padding: 0.8rem;
-            background: #1a1a1a;
-            border: 1px solid var(--color-border);
-            border-radius: 4px;
-            font-family: var(--font-main);
-            color: white;
+            background: #000;
+            border: 1px solid var(--term-border);
+            color: var(--term-green);
+            font-family: var(--font-mono);
+            outline: none;
+            transition: all 0.2s;
         }
 
-        .btn-save {
-            background: var(--color-accent);
-            color: var(--color-primary);
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 700;
+        .form-group input:focus {
+            border-color: var(--term-green);
+            box-shadow: 0 0 5px var(--term-green-glow);
+        }
+
+        .btn-term {
+            background: transparent;
+            color: var(--term-green);
+            border: 1px solid var(--term-green);
+            padding: 1rem;
             width: 100%;
+            font-family: var(--font-mono);
             text-transform: uppercase;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+
+        .btn-term:hover {
+            background: var(--term-green);
+            color: black;
+            box-shadow: 0 0 20px var(--term-green);
         }
 
         .product-list-item {
-            background: #1a1a1a;
+            background: rgba(10, 10, 10, 0.8);
             padding: 1rem;
-            border-radius: 4px;
-            margin-bottom: 1rem;
+            border: 1px solid var(--term-border);
+            margin-bottom: 0.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 1px solid var(--color-border);
         }
 
         .btn-delete {
-            background: #ff4444;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
+            background: transparent;
+            color: #ff4444;
+            border: 1px solid #ff4444;
+            padding: 0.4rem 0.8rem;
+            font-family: var(--font-mono);
             cursor: pointer;
         }
 
-        .export-area {
-            margin-top: 4rem;
-            padding: 2rem;
-            background: #000;
-            border: 1px dashed var(--color-accent);
-            border-radius: 4px;
+        .btn-delete:hover {
+            background: #ff4444;
+            color: white;
         }
 
         pre {
-            background: #111;
+            background: #000;
             padding: 1rem;
             overflow-x: auto;
-            border-radius: 4px;
-            margin-top: 1rem;
+            border: 1px solid var(--term-border);
+            color: var(--term-green);
             font-size: 0.8rem;
-            color: #88ff88;
+        }
+
+        .warning-area {
+            border: 1px solid #ffaa00;
+            background: rgba(255, 170, 0, 0.05);
+            padding: 1rem;
+            margin-bottom: 2rem;
+            color: #ffaa00;
+        }
+
+        .source-indicator-admin {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            font-size: 0.7rem;
+            opacity: 0.5;
         }
     </style>
 </head>
 
-<body>
+<body class="crt-overlay">
     <header>
         <nav>
             <div class="logo-container">
-                <span class="logo-text">Santa Blanca // Terminal</span>
+                <span class="logo-text">SANTA BLANCA // TERMINAL_v2.0</span>
             </div>
-            <a href="index.html" class="buy-btn" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Zur Boutique</a>
+            <a href="index.html" class="btn-term"
+                style="width: auto; padding: 0.5rem 1rem; font-size: 0.7rem;">EXIT_TO_STORE</a>
         </nav>
     </header>
 
     <main class="admin-main">
-        <h2 style="color: var(--color-accent); margin-bottom: 2rem;">PRODUKT MANAGEMENT</h2>
+        <div class="warning-area">
+            [SYS_ALERT] GIT_PUSH_REQUIRED: Alle Änderungen müssen via GitHub Desktop hochgeladen werden!
+        </div>
 
-        <div
-            style="background: #111; padding: 1.5rem; border: 1px solid var(--color-border); border-radius: 4px; margin-bottom: 2rem;">
-            <h3 style="color: var(--color-accent); font-size: 0.9rem; margin-bottom: 1rem;">CLOUD-SYNC EINSTELLUNGEN
-            </h3>
+        <div class="terminal-card">
+            <h3>CLOUD_SYNC_CONFIG</h3>
             <div class="form-group">
-                <label style="font-size: 0.8rem;">JSONBin Master Key</label>
+                <label>MASTER_KEY</label>
                 <input type="password" id="cloud-key"
                     value="$2a$10$OoaK6RpNR.CKB8ZzH0Zd8e7o0R5sfAfP7d62uAlScO7Rw5ssCdhVu">
             </div>
             <div class="form-group">
-                <label style="font-size: 0.8rem;">Bin ID (Wird automatisch erstellt wenn leer)</label>
-                <input type="text" id="cloud-bin-id" placeholder="Noch nicht verknüpft" value="">
+                <label>BIN_ID</label>
+                <input type="text" id="cloud-bin-id" readonly>
             </div>
-            <button id="sync-now" class="btn-save"
-                style="background: transparent; border: 1px solid var(--color-accent); color: var(--color-accent);">Cloud-Sync
-                Jetzt</button>
-            <p id="sync-status" style="font-size: 0.7rem; margin-top: 0.5rem; color: #88ff88;"></p>
+            <button id="sync-now" class="btn-term">MANUAL_SYNC_INIT</button>
+            <button id="reset-all" class="btn-term"
+                style="border-color: #ff4444; color: #ff4444; margin-top: 0.5rem;">RESET_ALL_DATA</button>
+            <p id="sync-status" style="margin-top: 0.5rem;"></p>
         </div>
 
-        <form id="product-form">
-            <div class="form-group">
-                <label>Produktname</label>
-                <input type="text" id="p-name" required placeholder="z.B. Santa Blanca Hoodie">
-            </div>
-            <div class="form-group">
-                <label>Preis (mit €)</label>
-                <input type="text" id="p-price" required placeholder="z.B. 53.48 €">
-            </div>
-            <div class="form-group">
-                <label>Kategorie</label>
-                <select id="p-category">
-                    <option value="men">Herren</option>
-                    <option value="women">Damen</option>
-                    <option value="accessories">Accessoires</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Produkt-Link (URL)</label>
-                <input type="text" id="p-link" required placeholder="https://...">
-            </div>
-            <button type="submit" class="btn-save">Produkt hinzufügen</button>
-        </form>
-
-        <h2 style="margin-top: 3rem;">Aktuelle Produkte</h2>
-        <div id="admin-product-list"></div>
-
-        <div class="export-area" style="border-color: #ffaa00;">
-            <h3 style="color: #ffaa00;">⚠️ GitHub Update Pflicht!</h3>
-            <p style="color: #ffaa00;">Nachdem du Änderungen hier gemacht hast, musst du diese via <b>GitHub Desktop</b>
-                (oder Konsole) hochladen, damit deine Discord-Freunde sie sehen können!</p>
+        <div class="terminal-card">
+            <h3>PRODUCT_ENTRY_FORM</h3>
+            <form id="product-form">
+                <div class="form-group">
+                    <label>PROD_NAME</label>
+                    <input type="text" id="p-name" required placeholder="Santa Blanca Item">
+                </div>
+                <div class="form-group">
+                    <label>PRICE_VAL (e.g. 49,99€)</label>
+                    <input type="text" id="p-price" required placeholder="0.00€">
+                </div>
+                <div class="form-group">
+                    <label>CATEGORY_TAG</label>
+                    <select id="p-category">
+                        <option value="men">MEN</option>
+                        <option value="women">WOMEN</option>
+                        <option value="accessories">ACC</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>IMAGE_FILE (e.g. hoodie.jpg)</label>
+                    <input type="text" id="p-image" placeholder="placeholder.jpg">
+                </div>
+                <div class="form-group">
+                    <label>PROD_URL (EXTERNAL_LINK)</label>
+                    <input type="text" id="p-link" required placeholder="https://...">
+                </div>
+                <button type="submit" class="btn-term">EXEC_ADD_PRODUCT</button>
+            </form>
         </div>
 
-        <div class="export-area">
-            <h3>Permanentes Speichern</h3>
-            <p>Kopiere diesen Code in deine <code>products.js</code>, um die Änderungen dauerhaft zu speichern:</p>
-            <button id="copy-code" class="btn-save" style="margin-bottom: 1rem;">Code kopieren</button>
+        <div class="terminal-card">
+            <h3>CURRENT_ASSETS_IN_MEMORY</h3>
+            <div id="admin-product-list"></div>
+        </div>
+
+        <div class="terminal-card">
+            <h3>CODE_EXPORT_STATIC</h3>
+            <p style="font-size: 0.8rem; margin-bottom: 1rem;">Kopiere diesen Code in 'products.js' für permanente
+                Speicherung:</p>
+            <button id="copy-code" class="btn-term" style="margin-bottom: 1rem;">COPY_BUFFER</button>
             <pre id="export-code"></pre>
         </div>
     </main>
 
+    <div class="source-indicator-admin">
+        CONNECTED_TO: JSONBin.io // Santa Blanca Bin
+    </div>
+
     <script src="products.js"></script>
     <script>
         let localProducts = JSON.parse(localStorage.getItem('custom_products')) || [];
-        const binId = "69aa2160d0ea881f40f35ead"; // Fixed Bin ID
-        const masterKey = document.getElementById('cloud-key');
+        const binId = "69aa2160d0ea881f40f35ead";
+        const masterKeyField = document.getElementById('cloud-key');
         const binInput = document.getElementById('cloud-bin-id');
         const syncStatus = document.getElementById('sync-status');
 
         binInput.value = binId;
-        binInput.readOnly = true; // Prevent accidental changes
 
         function renderAdminList() {
             const list = document.getElementById('admin-product-list');
@@ -181,8 +338,8 @@
                 const div = document.createElement('div');
                 div.className = 'product-list-item';
                 div.innerHTML = `
-                    <span>${p.name} (${p.price})</span>
-                    <button class="btn-delete" onclick="deleteProduct(${index})">Löschen</button>
+                    <span>[${p.id}] ${p.name} - ${p.price}</span>
+                    <button class="btn-delete" onclick="deleteProduct(${index})">ERASE</button>
                 `;
                 list.appendChild(div);
             });
@@ -191,62 +348,53 @@
         }
 
         async function syncToCloud() {
-            const key = masterKey.value;
-            const currentBinId = binInput.value;
-
+            const key = masterKeyField.value;
             if (!key) {
-                syncStatus.textContent = "Fehler: Master Key fehlt!";
+                syncStatus.textContent = "[ERR] KEY_MISSING";
+                syncStatus.style.color = "#ff4444";
                 return;
             }
 
-            syncStatus.textContent = "Synchronisiere...";
-            syncStatus.style.color = "#aaa";
+            syncStatus.textContent = "[LOG] SYNCING_REMOTE...";
+            syncStatus.style.color = "#00ff41";
 
             const data = { products: [...products, ...localProducts] };
 
             try {
-                let response;
-                if (!currentBinId) {
-                    // Create New Bin
-                    response = await fetch('https://api.jsonbin.io/v3/b', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Master-Key': key,
-                            'X-Bin-Name': 'Santa-Blanca-Store'
-                        },
-                        body: JSON.stringify(data)
-                    });
-                } else {
-                    // Update Existing Bin
-                    response = await fetch(`https://api.jsonbin.io/v3/b/${currentBinId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Master-Key': key
-                        },
-                        body: JSON.stringify(data)
-                    });
-                }
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': key
+                    },
+                    body: JSON.stringify(data)
+                });
 
                 const result = await response.json();
                 if (response.ok) {
-                    const newId = result.metadata ? result.metadata.id : currentBinId;
-                    localStorage.setItem('jsonbin_id', newId);
-                    binInput.value = newId;
-                    syncStatus.textContent = "Erfolgreich synchronisiert!";
-                    syncStatus.style.color = "#88ff88";
+                    syncStatus.textContent = "[OK] SYNC_COMPLETE_SUCCESS";
+                    syncStatus.style.color = "#00ff41";
                 } else {
-                    syncStatus.textContent = "Fehler: " + (result.message || "Unbekannter Fehler");
+                    syncStatus.textContent = "[FAIL] " + (result.message || "SYNC_FAILED");
                     syncStatus.style.color = "#ff4444";
                 }
             } catch (err) {
-                syncStatus.textContent = "Netzwerkfehler!";
+                syncStatus.textContent = "[ERR] NETWORK_UNSTABLE";
                 syncStatus.style.color = "#ff4444";
             }
         }
 
         document.getElementById('sync-now').addEventListener('click', syncToCloud);
+
+        document.getElementById('reset-all').addEventListener('click', () => {
+            if (confirm("[CAUTION] Willst du wirklich ALLE Produkte (lokal & Cloud) löschen?")) {
+                localProducts = [];
+                localStorage.removeItem('custom_products');
+                renderAdminList();
+                syncToCloud();
+                alert("[SYS] DATA_WIPED_SUCCESSFULLY");
+            }
+        });
 
         document.getElementById('product-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -255,6 +403,7 @@
                 name: document.getElementById('p-name').value,
                 price: document.getElementById('p-price').value,
                 category: document.getElementById('p-category').value,
+                image: document.getElementById('p-image').value || 'placeholder.jpg',
                 link: document.getElementById('p-link').value
             };
             localProducts.push(newP);
@@ -262,25 +411,24 @@
             renderAdminList();
             e.target.reset();
 
-            // Auto sync if bin exists
-            if (binInput.value) syncToCloud();
+            syncToCloud();
         });
 
         function deleteProduct(index) {
             localProducts.splice(index, 1);
             localStorage.setItem('custom_products', JSON.stringify(localProducts));
             renderAdminList();
-            if (binInput.value) syncToCloud();
+            syncToCloud();
         }
 
         function updateExportCode() {
-            const code = `const categories = ${JSON.stringify(categories, null, 2)};\n\nconst products = ${JSON.stringify([...products, ...localProducts], null, 2).replace(/,"image": "[^"]*"/g, "")};`;
+            const code = `const categories = ${JSON.stringify(categories, null, 2)};\n\nconst products = ${JSON.stringify([...products, ...localProducts], null, 2)};`;
             document.getElementById('export-code').textContent = code;
         }
 
         document.getElementById('copy-code').addEventListener('click', () => {
             const code = document.getElementById('export-code').textContent;
-            navigator.clipboard.writeText(code).then(() => alert('Code kopiert!'));
+            navigator.clipboard.writeText(code).then(() => alert('BUFFERED_TO_CLIPBOARD'));
         });
 
         renderAdminList();
