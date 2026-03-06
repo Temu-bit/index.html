@@ -102,23 +102,29 @@
     <main class="admin-main">
         <h2 style="color: var(--color-accent); margin-bottom: 2rem;">PRODUKT MANAGEMENT</h2>
 
-        <div
-            style="background: #111; padding: 1.5rem; border: 1px solid var(--color-border); border-radius: 4px; margin-bottom: 2rem;">
-            <h3 style="color: var(--color-accent); font-size: 0.9rem; margin-bottom: 1rem;">CLOUD-SYNC EINSTELLUNGEN
-            </h3>
+        <div class="export-area" style="border-color: var(--color-accent);">
+            <h3>Cloud-Synchronisation</h3>
             <div class="form-group">
-                <label style="font-size: 0.8rem;">JSONBin Master Key</label>
-                <input type="password" id="cloud-key"
-                    value="$2a$10$OoaK6RpNR.CKB8ZzH0Zd8e7o0R5sfAfP7d62uAlScO7Rw5ssCdhVu">
+                <label>JSONBin Master Key</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="password" id="cloud-key" placeholder="Dein Master Key" style="flex: 1;"
+                        value="$2a$10$OoaK6RpNR.CKB8ZzH0Zd8e7o0R5sfAfP7d62uAlScO7Rw5ssCdhVu">
+                    <button id="test-connection" class="btn-save"
+                        style="width: auto; margin: 0; padding: 0 1rem; background: #444; font-size: 0.7rem;">Testen</button>
+                </div>
             </div>
             <div class="form-group">
-                <label style="font-size: 0.8rem;">Bin ID (Wird automatisch erstellt wenn leer)</label>
-                <input type="text" id="cloud-bin-id" placeholder="Noch nicht verknüpft" value="">
+                <label style="font-size: 0.8rem;">Bin ID (Deine Cloud-Speicher ID)</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="cloud-bin-id" placeholder="ID eingeben oder neu erstellen" value="">
+                    <button id="create-bin" class="btn-save"
+                        style="width: auto; margin: 0; padding: 0 1rem; background: #0088ff; font-size: 0.7rem;">Neu</button>
+                </div>
             </div>
             <button id="sync-now" class="btn-save"
-                style="background: transparent; border: 1px solid var(--color-accent); color: var(--color-accent);">Cloud-Sync
-                Jetzt</button>
-            <p id="sync-status" style="font-size: 0.7rem; margin-top: 0.5rem; color: #88ff88;"></p>
+                style="background: var(--color-accent); color: #000; font-weight: bold;">Cloud-Sync JETZT</button>
+            <p id="sync-status"
+                style="font-size: 0.8rem; margin-top: 0.8rem; padding: 0.6rem; border-radius: 4px; display: none;"></p>
         </div>
 
         <form id="product-form">
@@ -148,6 +154,30 @@
         <h2 style="margin-top: 3rem;">Aktuelle Produkte</h2>
         <div id="admin-product-list"></div>
 
+        <div class="export-area" style="border-color: #00ff88; background: rgba(0, 255, 136, 0.05);">
+            <h3 style="color: #00ff88;">🌍 Dein Öffentlicher Live-Shop</h3>
+            <p>Jeder mit diesem Link sieht <b>exakt das</b>, was du oben synchronisiert hast.</p>
+            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                <input id="public-live-url" type="text" readonly
+                    style="flex: 1; padding: 0.6rem; background: #111; border: 1px solid #00ff88; color: #00ff88; border-radius: 4px; font-family: monospace; font-size: 0.8rem;">
+                <button id="live-share-btn" class="btn-save"
+                    style="background: #00ff88; color: #000; font-weight: bold; width: auto; margin: 0; padding: 0 1.5rem;">Kopieren</button>
+            </div>
+            <p style="font-size: 0.75rem; margin-top: 0.8rem; color: #ffaa00; font-weight: bold;">
+                ⚠️ WICHTIG: Klicke nach jeder Änderung oben auf "Cloud-Sync JETZT", sonst bleibt dieser Link auf dem
+                alten Stand!
+            </p>
+        </div>
+
+        <div class="export-area" style="border-color: #0088ff; margin-top: 2rem;">
+            <h3 style="color: #0088ff;">📸 Snapshot-Link (Festgefroren)</h3>
+            <p>Erstellt einen Link mit dem exakten aktuellen Stand. Dieser Link ändert sich <b>nie</b>, auch wenn du
+                später Produkte löschst oder änderst.</p>
+            <button id="share-btn" class="btn-save" style="background: #0088ff;">Snapshot-Link generieren</button>
+            <input id="share-url-display" type="text" readonly
+                style="display: none; width: 100%; margin-top: 0.5rem; padding: 0.5rem; background: #222; border: 1px solid #444; color: #88ff88; font-size: 0.7rem;">
+        </div>
+
         <div class="export-area" style="border-color: #ffaa00;">
             <h3 style="color: #ffaa00;">⚠️ GitHub Update Pflicht!</h3>
             <p style="color: #ffaa00;">Nachdem du Änderungen hier gemacht hast, musst du diese via <b>GitHub Desktop</b>
@@ -165,13 +195,26 @@
     <script src="products.js"></script>
     <script>
         let localProducts = JSON.parse(localStorage.getItem('custom_products')) || [];
-        const binId = "69aa2160d0ea881f40f35ead"; // Fixed Bin ID
-        const masterKey = document.getElementById('cloud-key');
+
+        // Element References
+        const masterKeyInput = document.getElementById('cloud-key');
         const binInput = document.getElementById('cloud-bin-id');
         const syncStatus = document.getElementById('sync-status');
+        const exportCode = document.getElementById('export-code');
 
-        binInput.value = binId;
-        binInput.readOnly = true; // Prevent accidental changes
+        // Persistence for Cloud Settings
+        const savedBinId = localStorage.getItem('santa_blanca_bin_id') || "";
+        masterKeyInput.value = localStorage.getItem('santa_blanca_master_key') || "";
+        binInput.value = savedBinId;
+
+        masterKeyInput.onchange = () => {
+            localStorage.setItem('santa_blanca_master_key', masterKeyInput.value);
+            updateLiveLinkDisplay();
+        };
+        binInput.onchange = () => {
+            localStorage.setItem('santa_blanca_bin_id', binInput.value);
+            updateLiveLinkDisplay();
+        };
 
         function renderAdminList() {
             const list = document.getElementById('admin-product-list');
@@ -190,63 +233,171 @@
             updateExportCode();
         }
 
-        async function syncToCloud() {
-            const key = masterKey.value;
-            const currentBinId = binInput.value;
+        function showSyncStatus(msg, isError) {
+            syncStatus.textContent = msg;
+            syncStatus.style.display = 'block';
+            syncStatus.style.background = isError ? 'rgba(255, 68, 68, 0.2)' : 'rgba(136, 255, 136, 0.2)';
+            syncStatus.style.color = isError ? '#ff4444' : '#88ff88';
+            syncStatus.style.border = `1px solid ${isError ? '#ff4444' : '#88ff88'}`;
+        }
 
-            if (!key) {
-                syncStatus.textContent = "Fehler: Master Key fehlt!";
+        async function testCloudConnection() {
+            const key = masterKeyInput.value;
+            const currentBinId = binInput.value;
+            if (!key || !currentBinId) {
+                showSyncStatus("❌ Fehler: Master Key oder Bin ID fehlt!", true);
                 return;
             }
 
-            syncStatus.textContent = "Synchronisiere...";
-            syncStatus.style.color = "#aaa";
+            showSyncStatus("⏳ Teste Verbindung...", false);
+            try {
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${currentBinId}/latest`, {
+                    headers: { 'X-Master-Key': key, 'X-Bin-Meta': 'false' }
+                });
+                if (response.ok) {
+                    showSyncStatus("✅ Verbindung erfolgreich! Dein Speicher ist bereit.", false);
+                } else {
+                    const res = await response.json();
+                    showSyncStatus("❌ Fehler: " + (res.message || "Nicht erreichbar"), true);
+                }
+            } catch (err) {
+                showSyncStatus("❌ Netzwerkfehler beim Testen!", true);
+            }
+        }
+
+        async function createNewBin() {
+            const key = masterKeyInput.value;
+            if (!key) {
+                showSyncStatus("❌ Fehler: Bitte zuerst den Master Key oben eingeben!", true);
+                return;
+            }
+
+            if (!confirm("Möchtest du einen neuen, öffentlichen Cloud-Speicher erstellen?")) return;
+
+            showSyncStatus("⏳ Erstelle neuen Speicher...", false);
+            try {
+                const response = await fetch(`https://api.jsonbin.io/v3/b`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': key,
+                        'X-Bin-Private': 'false', // VERY IMPORTANT: MUST BE PUBLIC
+                        'X-Bin-Name': 'Santa Blanca Store'
+                    },
+                    body: JSON.stringify({ products: [...products, ...localProducts] })
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    const newId = result.metadata.id;
+                    binInput.value = newId;
+                    localStorage.setItem('santa_blanca_bin_id', newId);
+                    showSyncStatus("✅ NEUER SPEICHER ERSTELLT! ID: " + newId, false);
+                    updateLiveLinkDisplay();
+                } else {
+                    showSyncStatus("❌ Fehler beim Erstellen: " + (result.message || "Unbekannt"), true);
+                }
+            } catch (err) {
+                showSyncStatus("❌ Netzwerkfehler!", true);
+            }
+        }
+
+        async function syncToCloud() {
+            const key = masterKeyInput.value;
+            const currentBinId = binInput.value;
+            if (!key || !currentBinId) {
+                showSyncStatus("❌ Fehler: Master Key oder Bin ID fehlt!", true);
+                return;
+            }
+
+            showSyncStatus("⏳ Synchronisiere mit Cloud...", false);
 
             const data = { products: [...products, ...localProducts] };
 
             try {
-                let response;
-                if (!currentBinId) {
-                    // Create New Bin
-                    response = await fetch('https://api.jsonbin.io/v3/b', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Master-Key': key,
-                            'X-Bin-Name': 'Santa-Blanca-Store'
-                        },
-                        body: JSON.stringify(data)
-                    });
-                } else {
-                    // Update Existing Bin
-                    response = await fetch(`https://api.jsonbin.io/v3/b/${currentBinId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Master-Key': key
-                        },
-                        body: JSON.stringify(data)
-                    });
-                }
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${currentBinId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': key
+                    },
+                    body: JSON.stringify(data)
+                });
 
                 const result = await response.json();
                 if (response.ok) {
-                    const newId = result.metadata ? result.metadata.id : currentBinId;
-                    localStorage.setItem('jsonbin_id', newId);
-                    binInput.value = newId;
-                    syncStatus.textContent = "Erfolgreich synchronisiert!";
-                    syncStatus.style.color = "#88ff88";
+                    showSyncStatus("✅ ERFOLG: Shop ist jetzt live aktualisiert!", false);
+                    setTimeout(() => { syncStatus.style.display = 'none'; }, 5000);
                 } else {
-                    syncStatus.textContent = "Fehler: " + (result.message || "Unbekannter Fehler");
-                    syncStatus.style.color = "#ff4444";
+                    showSyncStatus("❌ Sync-Fehler: " + (result.message || "Fehler"), true);
                 }
             } catch (err) {
-                syncStatus.textContent = "Netzwerkfehler!";
-                syncStatus.style.color = "#ff4444";
+                showSyncStatus("❌ Netzwerkfehler beim Synchronisieren!", true);
+            }
+        }
+
+        async function createShareLink() {
+            try {
+                const shareBtn = document.getElementById('share-btn');
+                const shareInput = document.getElementById('share-url-display');
+
+                const allProducts = [...products, ...localProducts];
+                if (allProducts.length === 0) {
+                    alert("⚠️ Liste leer: Es gibt keine Produkte zum Teilen!");
+                    return;
+                }
+
+                const baseUrl = "https://temu-bit.github.io/index.html";
+
+                const compressed = allProducts.map(p => ({
+                    i: p.id,
+                    n: p.name,
+                    p: p.price,
+                    c: p.category,
+                    l: p.link
+                }));
+
+                const jsonStr = JSON.stringify(compressed);
+                const dataStr = btoa(unescape(encodeURIComponent(jsonStr)));
+                const shareUrl = `${baseUrl}?shared=${encodeURIComponent(dataStr)}`;
+
+                shareInput.value = shareUrl;
+                shareInput.style.display = 'block';
+                shareInput.select();
+
+                let successful = false;
+                try {
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(shareUrl);
+                        successful = true;
+                    }
+                } catch (err) { }
+
+                if (!successful) {
+                    try {
+                        successful = document.execCommand('copy');
+                    } catch (err) { }
+                }
+
+                if (successful) {
+                    shareBtn.textContent = "✅ Link kopiert!";
+                    shareBtn.style.background = "#28a745";
+                    setTimeout(() => {
+                        shareBtn.textContent = "Link für Freunde generieren (Teilen)";
+                        shareBtn.style.background = "#0088ff";
+                    }, 2000);
+                    alert("🚀 Erfolg! Der Link wurde kopiert.\n\nDu kannst ihn jetzt mit Strg+V verschicken.");
+                } else {
+                    alert("⚠️ Automatisches Kopieren fehlgeschlagen.\n\nDer Link steht aber im Textfeld unter dem Button. Bitte kopiere ihn dort manuell mit Strg+C.");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("❌ Ein technischer Fehler ist aufgetreten: " + e.message);
             }
         }
 
         document.getElementById('sync-now').addEventListener('click', syncToCloud);
+        document.getElementById('test-connection').addEventListener('click', testCloudConnection);
 
         document.getElementById('product-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -262,27 +413,98 @@
             renderAdminList();
             e.target.reset();
 
-            // Auto sync if bin exists
-            if (binInput.value) syncToCloud();
+            if (binInput.value && masterKeyInput.value) syncToCloud();
         });
 
         function deleteProduct(index) {
             localProducts.splice(index, 1);
             localStorage.setItem('custom_products', JSON.stringify(localProducts));
             renderAdminList();
-            if (binInput.value) syncToCloud();
+            if (binInput.value && masterKeyInput.value) syncToCloud();
         }
 
         function updateExportCode() {
-            const code = `const categories = ${JSON.stringify(categories, null, 2)};\n\nconst products = ${JSON.stringify([...products, ...localProducts], null, 2).replace(/,"image": "[^"]*"/g, "")};`;
-            document.getElementById('export-code').textContent = code;
+            const code = `const categories = ${JSON.stringify(categories, null, 2)};\n\nconst products = ${JSON.stringify([...products, ...localProducts], null, 2)};`;
+            exportCode.textContent = code;
         }
 
         document.getElementById('copy-code').addEventListener('click', () => {
-            const code = document.getElementById('export-code').textContent;
-            navigator.clipboard.writeText(code).then(() => alert('Code kopiert!'));
+            const code = exportCode.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.getElementById('copy-code');
+                const oldText = btn.textContent;
+                btn.textContent = "✅ Code kopiert!";
+                setTimeout(() => btn.textContent = oldText, 2000);
+            });
         });
 
+        function updateLiveLinkDisplay() {
+            const liveUrlInput = document.getElementById('public-live-url');
+            const currentBinId = binInput.value;
+            if (liveUrlInput && currentBinId) {
+                const baseUrl = "https://temu-bit.github.io/index.html";
+                liveUrlInput.value = `${baseUrl}?bin=${currentBinId}`;
+            } else if (liveUrlInput) {
+                liveUrlInput.value = "Bitte zuerst Cloud-Speicher erstellen ->";
+            }
+        }
+
+        async function createLiveShareLink() {
+            try {
+                const shareBtn = document.getElementById('live-share-btn');
+                const liveUrlInput = document.getElementById('public-live-url');
+
+                if (!liveUrlInput.value) {
+                    alert("⚠️ Fehler: Link konnte nicht generiert werden.");
+                    return;
+                }
+
+                liveUrlInput.select();
+
+                let successful = false;
+                try {
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(liveUrlInput.value);
+                        successful = true;
+                    }
+                } catch (err) { }
+
+                if (!successful) {
+                    try {
+                        successful = document.execCommand('copy');
+                    } catch (err) { }
+                }
+
+                if (successful) {
+                    const originalText = shareBtn.textContent;
+                    shareBtn.textContent = "Kopiert!";
+                    shareBtn.style.background = "#ffffff";
+                    shareBtn.style.color = "#000000";
+                    setTimeout(() => {
+                        shareBtn.textContent = originalText;
+                        shareBtn.style.background = "#00ff88";
+                        shareBtn.style.color = "#000000";
+                    }, 2000);
+                } else {
+                    alert("⚠️ Kopieren fehlgeschlagen. Bitte manuell kopieren.");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("❌ Fehler beim Kopieren: " + e.message);
+            }
+        }
+
+        // Setup Buttons
+        const shareBtn = document.getElementById('share-btn');
+        if (shareBtn) shareBtn.onclick = createShareLink;
+
+        const liveShareBtn = document.getElementById('live-share-btn');
+        if (liveShareBtn) liveShareBtn.onclick = createLiveShareLink;
+
+        const createBinBtn = document.getElementById('create-bin');
+        if (createBinBtn) createBinBtn.onclick = createNewBin;
+
+        updateLiveLinkDisplay();
         renderAdminList();
     </script>
 </body>
