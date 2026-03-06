@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santa Blanca Store | Official</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&family=Ultra&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <nav>
+            <div class="logo-container">
+                <img src="logo.png" alt="Santa Blanca Logo" class="logo-img" onerror="this.style.display='none'">
+                <span class="logo-text">Santa Blanca</span>
+            </div>
+            <ul id="category-list">
+                <!-- Kategorien werden dynamisch geladen -->
+            </ul>
+            <div id="secret-admin" style="display: none;">
+                <a href="admin.html"
+                    style="font-size: 0.8rem; opacity: 0.5; color: var(--color-accent); margin-left:1rem;">Terminal</a>
+            </div>
+        </nav>
+    </header>
+
+    <script>
+        // Secret Admin Access: Click the logo 5 times
+        let logoClicks = 0;
+        let logoTimeout;
+        const logo = document.querySelector('.logo-container');
+        const secretLink = document.getElementById('secret-admin');
+
+        logo.addEventListener('click', () => {
+            logoClicks++;
+            clearTimeout(logoTimeout);
+
+            if (logoClicks >= 5) {
+                secretLink.style.display = 'block';
+                logoClicks = 0;
+            } else {
+                logoTimeout = setTimeout(() => {
+                    logoClicks = 0;
+                }, 1500); // 1.5 seconds gap allowed
+            }
+        });
+    </script>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>SANTA BLANCA</h1>
+            <p>Official Merch & Lifestyle</p>
+        </div>
+    </section>
+
+    <main class="products">
+        <h2 style="text-align: center; margin-bottom: 3rem; font-size: 2.5rem; color: var(--color-accent);">LATEST DROPS
+        </h2>
+        <div id="product-grid" class="product-grid">
+            <!-- Produkte werden dynamisch geladen -->
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Santa Blanca Store. All Rights Reserved.</p>
+    </footer>
+
+    <script src="products.js"></script>
+    <script src="main.js"></script>
+</body>
+
+</html>

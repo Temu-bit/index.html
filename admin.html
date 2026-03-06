@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santa Blanca | Terminal</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&family=Ultra&display=swap"
+        rel="stylesheet">
+    <style>
+        .admin-main {
+            padding: 8rem 1.5rem 3rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--color-accent);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            background: #1a1a1a;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            font-family: var(--font-main);
+            color: white;
+        }
+
+        .btn-save {
+            background: var(--color-accent);
+            color: var(--color-primary);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 700;
+            width: 100%;
+            text-transform: uppercase;
+        }
+
+        .product-list-item {
+            background: #1a1a1a;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--color-border);
+        }
+
+        .btn-delete {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .export-area {
+            margin-top: 4rem;
+            padding: 2rem;
+            background: #000;
+            border: 1px dashed var(--color-accent);
+            border-radius: 4px;
+        }
+
+        pre {
+            background: #111;
+            padding: 1rem;
+            overflow-x: auto;
+            border-radius: 4px;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: #88ff88;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav>
+            <div class="logo-container">
+                <span class="logo-text">Santa Blanca // Terminal</span>
+            </div>
+            <a href="index.html" class="buy-btn" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Zur Boutique</a>
+        </nav>
+    </header>
+
+    <main class="admin-main">
+        <h2 style="color: var(--color-accent); margin-bottom: 2rem;">PRODUKT MANAGEMENT</h2>
+
+        <div
+            style="background: #111; padding: 1.5rem; border: 1px solid var(--color-border); border-radius: 4px; margin-bottom: 2rem;">
+            <h3 style="color: var(--color-accent); font-size: 0.9rem; margin-bottom: 1rem;">CLOUD-SYNC EINSTELLUNGEN
+            </h3>
+            <div class="form-group">
+                <label style="font-size: 0.8rem;">JSONBin Master Key</label>
+                <input type="password" id="cloud-key"
+                    value="$2a$10$OoaK6RpNR.CKB8ZzH0Zd8e7o0R5sfAfP7d62uAlScO7Rw5ssCdhVu">
+            </div>
+            <div class="form-group">
+                <label style="font-size: 0.8rem;">Bin ID (Wird automatisch erstellt wenn leer)</label>
+                <input type="text" id="cloud-bin-id" placeholder="Noch nicht verknüpft" value="">
+            </div>
+            <button id="sync-now" class="btn-save"
+                style="background: transparent; border: 1px solid var(--color-accent); color: var(--color-accent);">Cloud-Sync
+                Jetzt</button>
+            <p id="sync-status" style="font-size: 0.7rem; margin-top: 0.5rem; color: #88ff88;"></p>
+        </div>
+
+        <form id="product-form">
+            <div class="form-group">
+                <label>Produktname</label>
+                <input type="text" id="p-name" required placeholder="z.B. Santa Blanca Hoodie">
+            </div>
+            <div class="form-group">
+                <label>Preis (mit €)</label>
+                <input type="text" id="p-price" required placeholder="z.B. 53.48 €">
+            </div>
+            <div class="form-group">
+                <label>Kategorie</label>
+                <select id="p-category">
+                    <option value="men">Herren</option>
+                    <option value="women">Damen</option>
+                    <option value="accessories">Accessoires</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Produkt-Link (URL)</label>
+                <input type="text" id="p-link" required placeholder="https://...">
+            </div>
+            <button type="submit" class="btn-save">Produkt hinzufügen</button>
+        </form>
+
+        <h2 style="margin-top: 3rem;">Aktuelle Produkte</h2>
+        <div id="admin-product-list"></div>
+
+        <div class="export-area">
+            <h3>Permanentes Speichern</h3>
+            <p>Kopiere diesen Code in deine <code>products.js</code>, um die Änderungen dauerhaft zu speichern:</p>
+            <button id="copy-code" class="btn-save" style="margin-bottom: 1rem;">Code kopieren</button>
+            <pre id="export-code"></pre>
+        </div>
+    </main>
+
+    <script src="products.js"></script>
+    <script>
+        let localProducts = JSON.parse(localStorage.getItem('custom_products')) || [];
+        let binId = localStorage.getItem('jsonbin_id') || "";
+        const masterKey = document.getElementById('cloud-key');
+        const binInput = document.getElementById('cloud-bin-id');
+        const syncStatus = document.getElementById('sync-status');
+
+        if (binId) binInput.value = binId;
+
+        function renderAdminList() {
+            const list = document.getElementById('admin-product-list');
+            list.innerHTML = '';
+
+            localProducts.forEach((p, index) => {
+                const div = document.createElement('div');
+                div.className = 'product-list-item';
+                div.innerHTML = `
+                    <span>${p.name} (${p.price})</span>
+                    <button class="btn-delete" onclick="deleteProduct(${index})">Löschen</button>
+                `;
+                list.appendChild(div);
+            });
+
+            updateExportCode();
+        }
+
+        async function syncToCloud() {
+            const key = masterKey.value;
+            const currentBinId = binInput.value;
+
+            if (!key) {
+                syncStatus.textContent = "Fehler: Master Key fehlt!";
+                return;
+            }
+
+            syncStatus.textContent = "Synchronisiere...";
+            syncStatus.style.color = "#aaa";
+
+            const data = { products: [...products, ...localProducts] };
+
+            try {
+                let response;
+                if (!currentBinId) {
+                    // Create New Bin
+                    response = await fetch('https://api.jsonbin.io/v3/b', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Master-Key': key,
+                            'X-Bin-Name': 'Santa-Blanca-Store'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                } else {
+                    // Update Existing Bin
+                    response = await fetch(`https://api.jsonbin.io/v3/b/${currentBinId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Master-Key': key
+                        },
+                        body: JSON.stringify(data)
+                    });
+                }
+
+                const result = await response.json();
+                if (response.ok) {
+                    const newId = result.metadata ? result.metadata.id : currentBinId;
+                    localStorage.setItem('jsonbin_id', newId);
+                    binInput.value = newId;
+                    syncStatus.textContent = "Erfolgreich synchronisiert!";
+                    syncStatus.style.color = "#88ff88";
+                } else {
+                    syncStatus.textContent = "Fehler: " + (result.message || "Unbekannter Fehler");
+                    syncStatus.style.color = "#ff4444";
+                }
+            } catch (err) {
+                syncStatus.textContent = "Netzwerkfehler!";
+                syncStatus.style.color = "#ff4444";
+            }
+        }
+
+        document.getElementById('sync-now').addEventListener('click', syncToCloud);
+
+        document.getElementById('product-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newP = {
+                id: Date.now(),
+                name: document.getElementById('p-name').value,
+                price: document.getElementById('p-price').value,
+                category: document.getElementById('p-category').value,
+                link: document.getElementById('p-link').value
+            };
+            localProducts.push(newP);
+            localStorage.setItem('custom_products', JSON.stringify(localProducts));
+            renderAdminList();
+            e.target.reset();
+
+            // Auto sync if bin exists
+            if (binInput.value) syncToCloud();
+        });
+
+        function deleteProduct(index) {
+            localProducts.splice(index, 1);
+            localStorage.setItem('custom_products', JSON.stringify(localProducts));
+            renderAdminList();
+            if (binInput.value) syncToCloud();
+        }
+
+        function updateExportCode() {
+            const code = `const categories = ${JSON.stringify(categories, null, 2)};\n\nconst products = ${JSON.stringify([...products, ...localProducts], null, 2).replace(/,"image": "[^"]*"/g, "")};`;
+            document.getElementById('export-code').textContent = code;
+        }
+
+        document.getElementById('copy-code').addEventListener('click', () => {
+            const code = document.getElementById('export-code').textContent;
+            navigator.clipboard.writeText(code).then(() => alert('Code kopiert!'));
+        });
+
+        renderAdminList();
+    </script>
+</body>
+
+</html>
