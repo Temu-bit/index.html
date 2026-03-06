@@ -26,6 +26,8 @@ function renderProducts(items) {
 }
 
 async function initApp() {
+    const categoryContainer = document.getElementById('category-list');
+
     // 0. Render Categories
     if (categoryContainer) {
         categoryContainer.innerHTML = '';
