@@ -148,6 +148,12 @@
         <h2 style="margin-top: 3rem;">Aktuelle Produkte</h2>
         <div id="admin-product-list"></div>
 
+        <div class="export-area" style="border-color: #ffaa00;">
+            <h3 style="color: #ffaa00;">⚠️ GitHub Update Pflicht!</h3>
+            <p style="color: #ffaa00;">Nachdem du Änderungen hier gemacht hast, musst du diese via <b>GitHub Desktop</b>
+                (oder Konsole) hochladen, damit deine Discord-Freunde sie sehen können!</p>
+        </div>
+
         <div class="export-area">
             <h3>Permanentes Speichern</h3>
             <p>Kopiere diesen Code in deine <code>products.js</code>, um die Änderungen dauerhaft zu speichern:</p>
@@ -159,12 +165,13 @@
     <script src="products.js"></script>
     <script>
         let localProducts = JSON.parse(localStorage.getItem('custom_products')) || [];
-        let binId = localStorage.getItem('jsonbin_id') || "";
+        const binId = "69aa2160d0ea881f40f35ead"; // Fixed Bin ID
         const masterKey = document.getElementById('cloud-key');
         const binInput = document.getElementById('cloud-bin-id');
         const syncStatus = document.getElementById('sync-status');
 
-        if (binId) binInput.value = binId;
+        binInput.value = binId;
+        binInput.readOnly = true; // Prevent accidental changes
 
         function renderAdminList() {
             const list = document.getElementById('admin-product-list');

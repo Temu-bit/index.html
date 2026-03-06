@@ -21,7 +21,7 @@ function renderProducts(items) {
 
 async function initApp() {
     const categoryContainer = document.getElementById('category-list');
-    const binId = localStorage.getItem('jsonbin_id') || "67c8eecfe41b4d34e49ed717"; // Fallback auf erste ID
+    const binId = "69aa2160d0ea881f40f35ead"; // Fixed Bin ID for Santa Blanca Store
 
     categoryContainer.innerHTML = '';
     categories.forEach(cat => {
