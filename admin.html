@@ -291,10 +291,6 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>IMAGE_FILE (e.g. hoodie.jpg)</label>
-                    <input type="text" id="p-image" placeholder="placeholder.jpg">
-                </div>
-                <div class="form-group">
                     <label>PROD_URL (EXTERNAL_LINK)</label>
                     <input type="text" id="p-link" required placeholder="https://...">
                 </div>
@@ -403,7 +399,6 @@
                 name: document.getElementById('p-name').value,
                 price: document.getElementById('p-price').value,
                 category: document.getElementById('p-category').value,
-                image: document.getElementById('p-image').value || 'placeholder.jpg',
                 link: document.getElementById('p-link').value
             };
             localProducts.push(newP);
