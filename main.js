@@ -9,10 +9,10 @@ function renderProducts(items) {
         card.className = 'product-card';
 
         card.innerHTML = `
-      <div class="product-info">
-        <h3>${product.name}</h3>
-        <p class="price">${product.price}</p>
-        <a href="${product.link}" target="_blank" class="buy-btn">Zum Produkt</a>
+      <div class="product-info" style="text-align: center; padding: 2rem 1rem;">
+        <h3 style="margin-bottom: 1rem;">${product.name}</h3>
+        <p class="price" style="font-size: 1.5rem; color: var(--color-accent); margin-bottom: 2rem;">${product.price}</p>
+        <a href="${product.link}" target="_blank" class="buy-btn" style="display: inline-block;">Zum Produkt</a>
       </div>
     `;
         container.appendChild(card);
@@ -36,7 +36,7 @@ async function initApp() {
     currentData = [...products];
 
     try {
-        const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest?nocache=${new Date().getTime()}`, {
             headers: {
                 'X-Bin-Meta': 'false',
                 'X-Master-Key': masterKey
