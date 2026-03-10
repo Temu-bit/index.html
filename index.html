@@ -20,11 +20,9 @@
             <ul id="category-list">
                 <!-- Kategorien werden dynamisch geladen -->
             </ul>
-            <div id="secret-admin" style="display: none;">
-                <a href="admin.html"
-                    style="font-size: 0.8rem; opacity: 0.5; color: var(--color-accent); margin-left:1rem;">Terminal</a>
-            </div>
+            <!-- Terminal Switch moved to footer for better secrecy -->
         </nav>
+
     </header>
 
     <script>
@@ -32,14 +30,13 @@
         let logoClicks = 0;
         let logoTimeout;
         const logo = document.querySelector('.logo-container');
-        const secretLink = document.getElementById('secret-admin');
-
         logo.addEventListener('click', () => {
             logoClicks++;
             clearTimeout(logoTimeout);
 
             if (logoClicks >= 5) {
-                secretLink.style.display = 'block';
+                const secretLink = document.getElementById('secret-admin');
+                if (secretLink) secretLink.style.display = 'block';
                 logoClicks = 0;
             } else {
                 logoTimeout = setTimeout(() => {
@@ -64,9 +61,14 @@
         </div>
     </main>
 
-    <footer>
+    <footer style="position: relative;">
         <p>&copy; 2026 Santa Blanca Store. All Rights Reserved.</p>
+        <div id="secret-admin" style="display: none; position: absolute; bottom: 10px; right: 10px;">
+            <a href="admin.html"
+                style="font-size: 0.8rem; opacity: 0.2; color: var(--color-accent); text-decoration: none; padding: 10px;">.</a>
+        </div>
     </footer>
+
 
     <div id="source-indicator" class="source-indicator">
         <span class="dot"></span>
